@@ -1,0 +1,29 @@
+﻿================
+KNOWLEDGE BASE
+================
+
+-   Creating a strong-name key file (.snk)
+
+        sn -k [FileName.snk]
+
+-   Extracting public key from a strong-name key file (.snk) to a strong-name public key file (.pub.snk)
+
+        sn -p [FileName.snk] [FileName.pub.snk]
+
+-   Displaying public key and token from a strong-name public key file (.pub.snk)
+
+        sn -t [FileName.pub.snk]
+        sn -tp [FileName.pub.snk]
+
+-   Verifying whether an assembly is strong-named
+
+        sn -v [AssemblyFileName.dll]
+        sn -vf [AssemblyFileName.dll]
+
+-   Displaying public key and token of a strong-named assembly
+
+        sn -T [AssemblyFileName.dll]
+        sn -Tp [AssemblyFileName.dll]
+
+
+

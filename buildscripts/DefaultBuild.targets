@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Target Name="DeepCleanProjectAfterClean"
+          AfterTargets="Clean">
+    <Message Text="Deep cleaning project $(AssemblyName) on cleaning..." />
+
+    <CreateItem Include="$(OutDir)\**\*.*; $(ProjectDir)\bin\**\*.*; $(ProjectDir)\obj\**\*.*"
+                Exclude="$(OutDir)\*.vshost.exe.*">
+      <Output TaskParameter="Include"
+              ItemName="AfterClean_FilesToDelete"/>
+    </CreateItem>
+    <Delete Files="@(AfterClean_FilesToDelete)" />
+
+    <CreateItem Include="$(OutDir); $(ProjectDir)\bin; $(ProjectDir)\obj" >
+      <Output TaskParameter="Include"
+              ItemName="AfterClean_DirectoriesToDelete" />
+    </CreateItem>
+    <RemoveDir Directories="@(AfterClean_DirectoriesToDelete)"
+               ContinueOnError="true" />
+  </Target>
+</Project>

@@ -11,6 +11,7 @@
 
     <ItemGroup>
         <NUnitTestAssembly Include="source\Lucene.Net.Linq.Tests\bin\Debug\Lucene.Net.Linq.Tests.dll"/>
+        <NUnitTestAssembly Include="source\Lucene.Net.Linq.Tests\bin\Release\Lucene.Net.Linq.Tests.dll"/>
     </ItemGroup>
 
     <ItemGroup>

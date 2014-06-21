@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.30501.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lucene.Net.Linq", "source\Lucene.Net.Linq\Lucene.Net.Linq.csproj", "{77AD18CC-93A3-4BC9-9F31-2C16D873F088}"
 EndProject
@@ -39,6 +39,7 @@ Global
 		{40D157FA-178B-4906-9179-E5D623F5BA03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{40D157FA-178B-4906-9179-E5D623F5BA03}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{40D157FA-178B-4906-9179-E5D623F5BA03}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{40D157FA-178B-4906-9179-E5D623F5BA03}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
