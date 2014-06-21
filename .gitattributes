@@ -1,22 +1,65 @@
-# Auto detect text files and perform LF normalization
-* text=crlf
+﻿# Auto detect text files and perform LF normalization
+*           text eol=auto
+
+# Files that will always have CRLF line endings on checkout.
+*.targets   text eol=crlf
+*.props     text eol=crlf
+*.sln       text eol=crlf
+*.csproj    text eol=crlf
+*.proj      text eol=crlf
+*.config    text eol=crlf
+*.cs        text eol=crlf
+*.xml       text eol=crlf
+*.xaml      text eol=crlf
+*.html      text eol=crlf
+*.js        text eol=crlf
+*.map       text eol=crlf
+*.css       text eol=crlf
+*.less      text eol=crlf
+*.resx      text eol=crlf
+*.manifest  text eol=crlf
+*.txt       text eol=crlf
+*.cpp       text eol=crlf
+*.c         text eol=crlf
+*.h         text eol=crlf
+SOURCES     text eol=crlf
+MAKEFILE    text eol=crlf
+
+# Binary files that should not be modified.
+*.exe       binary
+*.dll       binary
+*.pdb       binary
+*.xap       binary
+*.snk       binary
+*.png       binary
+*.ico       binary
+*.jpg       binary
+*.gif       binary
+*.bmp       binary
+*.cur       binary
+*.sys       binary
+*.chm       binary
 
 # Custom for Visual Studio
-*.cs     diff=csharp
-*.sln    merge=union
-*.csproj merge=union
-*.vbproj merge=union
-*.fsproj merge=union
-*.dbproj merge=union
+*.cs        diff=csharp
+*.js        diff=astextplain
+*.sln       merge=union
+*.csproj    merge=union
+*.vbproj    merge=union
+*.fsproj    merge=union
+*.dbproj    merge=union
 
 # Standard to msysgit
-*.doc	 diff=astextplain
-*.DOC	 diff=astextplain
-*.docx diff=astextplain
-*.DOCX diff=astextplain
-*.dot  diff=astextplain
-*.DOT  diff=astextplain
-*.pdf  diff=astextplain
-*.PDF	 diff=astextplain
-*.rtf	 diff=astextplain
-*.RTF	 diff=astextplain
+*.doc       diff=astextplain
+*.DOC       diff=astextplain
+*.docx      diff=astextplain
+*.DOCX      diff=astextplain
+*.dot       diff=astextplain
+*.DOT       diff=astextplain
+*.pdf       diff=astextplain
+*.PDF       diff=astextplain
+*.rtf       diff=astextplain
+*.RTF       diff=astextplain
+
+
+

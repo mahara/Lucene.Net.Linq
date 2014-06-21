@@ -1,10 +1,18 @@
-*.suo
-*ReSharper*
-*ncrunch*
-*.user
-*.dotCover
-*.cache
-bin
-obj
-build/
+# User-specific files
+.vs/
 packages/
+*.suo
+*.user
+_ReSharper*/
+*.csproj.ReSharper
+*.cache
+* Thumbs.db
+
+
+# Build output
+build/
+bin/
+obj/
+
+
+

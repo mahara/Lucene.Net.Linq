@@ -1,25 +1,23 @@
-# EditorConfig helps developers define and maintain consistent
-# coding styles between different editors and IDEs
-# editorconfig.org
+﻿# EditorConfig is awesome: https://EditorConfig.org
 
+# top-most EditorConfig file
 root = true
 
 [*]
 indent_style = space
 indent_size = 4
 end_of_line = crlf
-charset = utf-8
 trim_trailing_whitespace = true
-insert_final_newline = true
 
-[*.config]
+[*.{csproj,props}]
 indent_size = 2
 
-[*.nuspec]
+[*.cs]
+dotnet_sort_system_directives_first = true
+csharp_space_after_cast = true
+
+[*.{xml,xsd,json,config}]
 indent_size = 2
 
-[*.csproj]
-indent_size = 2
 
-[*.md]
-trim_trailing_whitespace = false
+
