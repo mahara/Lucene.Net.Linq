@@ -1,0 +1,48 @@
+<Project>
+
+  <PropertyGroup>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/mahara/Lucene.Net.Linq</RepositoryUrl>
+    <BuildVersion>0.0.0</BuildVersion>
+    <BuildVersion Condition="'$(APPVEYOR_BUILD_VERSION)'!=''">$(APPVEYOR_BUILD_VERSION)</BuildVersion>
+    <BuildVersionMajor>$(BuildVersion.Split('.')[0])</BuildVersionMajor>
+    <BuildVersionNoSuffix>$(BuildVersion.Split('-')[0])</BuildVersionNoSuffix>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <AssemblyOriginatorKeyFile>../../buildscripts/public.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly>true</SignAssembly>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Product>Lucene.Net.Linq</Product>
+    <FileVersion>$(BuildVersionNoSuffix)</FileVersion>
+    <VersionPrefix>$(BuildVersion)</VersionPrefix>
+    <AssemblyVersion>$(BuildVersionMajor).0.0</AssemblyVersion>
+    <AssemblyTitle>Lucene.Net.Linq</AssemblyTitle>
+    <Authors>Chris Eldredge (The Motley Fool, LLC) &amp; Contributors</Authors>
+    <PackageLicenseUrl>https://github.com/chriseldredge/Lucene.Net.Linq/blob/master/LICENSE.txt</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/mahara/Lucene.Net.Linq</PackageProjectUrl>
+    <PackageIconUrl></PackageIconUrl>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageOutputPath>../../build/</PackageOutputPath>
+    <PackageVersion>$(BuildVersion)</PackageVersion>
+    <IncludeSymbols>true</IncludeSymbols>
+    <IncludeSource>false</IncludeSource>
+    <CurrentYear>$([System.DateTime]::Now.ToString("yyyy"))</CurrentYear>
+    <Copyright>Copyright 2012-$(CurrentYear) Chris Eldredge (The Motley Fool, LLC) - https://github.com/chriseldredge/Lucene.Net.Linq</Copyright>
+    <ContentTargetFolders>.</ContentTargetFolders>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)'=='net472'">
+    <DefineConstants>$(DefineConstants)</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="..\..\CHANGELOG.md" />
+    <Content Include="..\..\LICENSE">
+      <PackagePath></PackagePath>
+    </Content>
+  </ItemGroup>
+
+</Project>
