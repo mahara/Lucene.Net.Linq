@@ -1,65 +1,49 @@
-using System;
-using System.Collections.Generic;
-using Lucene.Net.Linq.Mapping;
-using Lucene.Net.Linq.Search;
-using Lucene.Net.QueryParsers;
-using Lucene.Net.Search;
-using Version = Lucene.Net.Util.Version;
-
 namespace Lucene.Net.Linq
 {
+    #region Using Directives
+
+    using System;
+    using System.Collections.Generic;
+
+    using Lucene.Net.Linq.Mapping;
+    using Lucene.Net.Linq.Search;
+    using Lucene.Net.QueryParsers;
+    using Lucene.Net.Search;
+
+    using Version = Lucene.Net.Util.Version;
+
+    #endregion
+
     public class FieldMappingQueryParser<T> : QueryParser
     {
-        private readonly Version _matchVersion;
-        private readonly IDocumentMapper<T> _mapper;
-        private readonly string _initialDefaultField;
-        private static readonly string DefaultField = typeof(FieldMappingQueryParser<T>).FullName + ".DEFAULT_FIELD";
-
-        [Obsolete("Use constructor with default search field")]
-        public FieldMappingQueryParser(Version matchVersion, IDocumentMapper<T> mapper)
-            : base(matchVersion, DefaultField, mapper.Analyzer)
-        {
-            this._initialDefaultField = DefaultField;
-            this._matchVersion = matchVersion;
-            this._mapper = mapper;
-        }
+        private readonly string _defaultSearchField;
 
         public FieldMappingQueryParser(Version matchVersion, string defaultSearchField, IDocumentMapper<T> mapper)
             : base(matchVersion, defaultSearchField, mapper.Analyzer)
         {
-            this._initialDefaultField = defaultSearchField;
-            this._matchVersion = matchVersion;
-            this._mapper = mapper;
+            this._defaultSearchField = defaultSearchField;
+            this.MatchVersion = matchVersion;
+            this.DocumentMapper = mapper;
+
+            this.DefaultSearchProperty = defaultSearchField;
         }
 
         /// <summary>
-        /// Sets the default property for queries that don't specify which field to search.
-        /// For an example query like <c>Lucene OR NuGet</c>, if this property is set to <c>SearchText</c>,
-        /// it will produce a query like <c>SearchText:Lucene OR SearchText:NuGet</c>.
+        ///     Sets the default property for queries that don't specify which field to search.
+        ///     For an example query like <c>Lucene OR NuGet</c>, if this property is set to <c>SearchText</c>,
+        ///     it will produce a query like <c>SearchText:Lucene OR SearchText:NuGet</c>.
         /// </summary>
-        [Obsolete("Set the default search field in the constructor instead")]
         public string DefaultSearchProperty { get; set; }
 
-        public Version MatchVersion
-        {
-            get { return this._matchVersion; }
-        }
+        public Version MatchVersion { get; }
 
-        public IDocumentMapper<T> DocumentMapper
-        {
-            get { return this._mapper; }
-        }
+        public IDocumentMapper<T> DocumentMapper { get; }
 
-        public override string Field
-        {
-#pragma warning disable 618
-            get { return DefaultSearchProperty; }
-#pragma warning restore 618
-        }
+        public override string Field => this.DefaultSearchProperty;
 
         protected override Query GetFieldQuery(string field, string queryText)
         {
-            var mapping = GetMapping(field);
+            var mapping = this.GetMapping(field);
 
             try
             {
@@ -75,7 +59,7 @@ namespace Lucene.Net.Linq
         protected override Query GetRangeQuery(string field, string part1, string part2, bool inclusive)
         {
             var rangeType = inclusive ? RangeType.Inclusive : RangeType.Exclusive;
-            var mapping = GetMapping(field);
+            var mapping = this.GetMapping(field);
             try
             {
                 return mapping.CreateRangeQuery(part1, part2, rangeType, rangeType);
@@ -88,31 +72,29 @@ namespace Lucene.Net.Linq
 
         protected override Query GetFieldQuery(string field, string queryText, int slop)
         {
-            return base.GetFieldQuery(OverrideField(field), queryText, slop);
+            return base.GetFieldQuery(this.OverrideField(field), queryText, slop);
         }
 
         protected override Query GetWildcardQuery(string field, string termStr)
         {
-            return base.GetWildcardQuery(OverrideField(field), termStr);
+            return base.GetWildcardQuery(this.OverrideField(field), termStr);
         }
 
         protected override Query GetPrefixQuery(string field, string termStr)
         {
-            return base.GetPrefixQuery(OverrideField(field), termStr);
+            return base.GetPrefixQuery(this.OverrideField(field), termStr);
         }
 
         protected override Query GetFuzzyQuery(string field, string termStr, float minSimilarity)
         {
-            return base.GetFuzzyQuery(OverrideField(field), termStr, minSimilarity);
+            return base.GetFuzzyQuery(this.OverrideField(field), termStr, minSimilarity);
         }
 
         private string OverrideField(string field)
         {
-            if (field == this._initialDefaultField)
+            if (field == this._defaultSearchField)
             {
-#pragma warning disable 618
-                field = DefaultSearchProperty;
-#pragma warning restore 618
+                field = this.DefaultSearchProperty;
             }
 
             return field;
@@ -120,11 +102,11 @@ namespace Lucene.Net.Linq
 
         protected virtual IFieldMappingInfo GetMapping(string field)
         {
-            field = OverrideField(field);
+            field = this.OverrideField(field);
 
             try
             {
-                return this._mapper.GetMappingInfo(field);
+                return this.DocumentMapper.GetMappingInfo(field);
             }
             catch (KeyNotFoundException)
             {

@@ -12,7 +12,7 @@ GOTO INITIALIZE_VARIABLES
 
 :INITIALIZE_VARIABLES
 SET CONFIGURATION="Release"
-SET BUILD_VERSION="5.0.0"
+SET BUILD_VERSION="3.400.0"
 
 GOTO SET_CONFIGURATION
 
@@ -28,10 +28,10 @@ GOTO SET_BUILD_VERSION
 IF "%version%"=="" GOTO RESTORE_PACKAGES
 SET BUILD_VERSION=%version%
 
-ECHO ---------------------------------------------------
+ECHO -----------------------------------------------------
 REM ECHO Building "%config%" packages with version "%version%"...
 ECHO Building "%CONFIGURATION%" packages with version "%BUILD_VERSION%"...
-ECHO ---------------------------------------------------
+ECHO -----------------------------------------------------
 
 GOTO RESTORE_PACKAGES
 

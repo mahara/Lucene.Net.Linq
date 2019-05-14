@@ -132,9 +132,11 @@ namespace Lucene.Net.Linq
         public FieldMappingQueryParser<T> CreateQueryParser<T>()
         {
             var mapper = new ReflectionDocumentMapper<T>(version, externalAnalyzer);
-#pragma warning disable 618
-            return new FieldMappingQueryParser<T>(version, mapper) { DefaultSearchProperty = mapper.KeyProperties.FirstOrDefault() ?? mapper.IndexedProperties.FirstOrDefault()};
-#pragma warning restore 618
+            var defaultSearchProperty = mapper.KeyProperties.FirstOrDefault() ?? mapper.IndexedProperties.FirstOrDefault();
+            return new FieldMappingQueryParser<T>(version, defaultSearchProperty, mapper)
+            {
+                DefaultSearchProperty = defaultSearchProperty
+            };
         }
 
         /// <summary>

@@ -1,27 +1,28 @@
-using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
-
 namespace Lucene.Net.Linq.Clauses.Expressions
 {
+    #region Using Directives
+
+    using System;
+    using System.Collections.Generic;
+    using System.Linq.Expressions;
+
+    #endregion
+
     internal class LuceneCompositeOrderingExpression : Expression
     {
-        private readonly IEnumerable<LuceneQueryFieldExpression> fields;
-        private static ExpressionType _nodeType = (ExpressionType)LuceneExpressionType.LuceneCompositeOrderingExpression;
-        private static Type _type = typeof(object);
+        private static readonly ExpressionType _nodeType = (ExpressionType) LuceneExpressionType.LuceneCompositeOrderingExpression;
+        private static readonly Type _type = typeof(object);
 
         public LuceneCompositeOrderingExpression(IEnumerable<LuceneQueryFieldExpression> fields)
         {
-            this.fields = fields;
+            this.Fields = fields;
         }
 
         public override ExpressionType NodeType => _nodeType;
+
         public override Type Type => _type;
 
-        public IEnumerable<LuceneQueryFieldExpression> Fields
-        {
-            get { return fields; }
-        }
+        public IEnumerable<LuceneQueryFieldExpression> Fields { get; }
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {

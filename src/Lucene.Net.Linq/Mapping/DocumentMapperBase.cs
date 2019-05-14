@@ -1,27 +1,33 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using Lucene.Net.Analysis;
-using Lucene.Net.Documents;
-using Lucene.Net.Linq.Analysis;
-using Lucene.Net.QueryParsers;
-using Lucene.Net.Search;
-using Version = Lucene.Net.Util.Version;
-
-namespace Lucene.Net.Linq.Mapping
+﻿namespace Lucene.Net.Linq.Mapping
 {
+    #region Using Directives
+
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.Linq;
+
+    using Lucene.Net.Analysis;
+    using Lucene.Net.Documents;
+    using Lucene.Net.Linq.Analysis;
+    using Lucene.Net.QueryParsers;
+    using Lucene.Net.Search;
+
+    using Version = Lucene.Net.Util.Version;
+
+    #endregion
+
     public abstract class DocumentMapperBase<T> : IDocumentMapper<T>, IDocumentKeyConverter, IDocumentModificationDetector<T>
     {
         protected readonly Analyzer ExternalAnalyzerProperty;
-        protected PerFieldAnalyzer AnalyzerProperty;
-        protected readonly Version VersionProperty;
         protected readonly IDictionary<string, IFieldMapper<T>> FieldMapProperty = new Dictionary<string, IFieldMapper<T>>(StringComparer.Ordinal);
         protected readonly List<IFieldMapper<T>> KeyFieldsProperty = new List<IFieldMapper<T>>();
+        protected readonly Version VersionProperty;
+        protected PerFieldAnalyzer AnalyzerProperty;
 
         /// <summary>
-        /// Constructs an instance that will create an <see cref="Analyzer"/>
-        /// using metadata on public properties on the type <typeparamref name="T"/>.
+        ///     Constructs an instance that will create an <see cref="Analyzer" />
+        ///     using metadata on public properties on the type <typeparamref name="T" />.
         /// </summary>
         /// <param name="version">Version compatibility for analyzers and indexers.</param>
         protected DocumentMapperBase(Version version)
@@ -30,8 +36,8 @@ namespace Lucene.Net.Linq.Mapping
         }
 
         /// <summary>
-        /// Constructs an instance with an externall supplied analyzer
-        /// and the compatibility version of the index.
+        ///     Constructs an instance with an externall supplied analyzer
+        ///     and the compatibility version of the index.
         /// </summary>
         /// <param name="version">Version compatibility for analyzers and indexers.</param>
         /// <param name="externalAnalyzer"></param>
@@ -42,10 +48,21 @@ namespace Lucene.Net.Linq.Mapping
             this.AnalyzerProperty = new PerFieldAnalyzer(new KeywordAnalyzer());
         }
 
-        public virtual PerFieldAnalyzer Analyzer
+        protected virtual bool EnableScoreTracking
         {
-            get { return this.AnalyzerProperty; }
+            get { return this.FieldMapProperty.Values.Any(m => m is ReflectionScoreMapper<T>); }
         }
+
+        public virtual IDocumentKey ToKey(Document document)
+        {
+            var keyValues = this.KeyFieldsProperty.ToDictionary(f => (IFieldMappingInfo) f, f => this.GetFieldValue(f, document));
+
+            this.ValidateKey(keyValues);
+
+            return new DocumentKey(keyValues);
+        }
+
+        public virtual PerFieldAnalyzer Analyzer => this.AnalyzerProperty;
 
         public virtual IEnumerable<string> AllProperties
         {
@@ -60,11 +77,6 @@ namespace Lucene.Net.Linq.Mapping
         public virtual IEnumerable<string> KeyProperties
         {
             get { return this.KeyFieldsProperty.Select(k => k.PropertyName); }
-        }
-
-        protected virtual bool EnableScoreTracking
-        {
-            get { return this.FieldMapProperty.Values.Any(m => m is ReflectionScoreMapper<T>); }
         }
 
         public virtual IFieldMappingInfo GetMappingInfo(string propertyName)
@@ -90,52 +102,16 @@ namespace Lucene.Net.Linq.Mapping
 
         public virtual IDocumentKey ToKey(T source)
         {
-            var keyValues = this.KeyFieldsProperty.ToDictionary(f => (IFieldMappingInfo)f, f => f.GetPropertyValue(source));
+            var keyValues = this.KeyFieldsProperty.ToDictionary(f => (IFieldMappingInfo) f, f => f.GetPropertyValue(source));
 
-            ValidateKey(keyValues);
-
-            return new DocumentKey(keyValues);
-        }
-
-        public virtual IDocumentKey ToKey(Document document)
-        {
-            var keyValues = this.KeyFieldsProperty.ToDictionary(f => (IFieldMappingInfo)f, f => GetFieldValue(f, document));
-
-            ValidateKey(keyValues);
+            this.ValidateKey(keyValues);
 
             return new DocumentKey(keyValues);
-        }
-
-        private object GetFieldValue(IFieldMappingInfo fieldMapper, Document document)
-        {
-            var fieldConverter = fieldMapper as IDocumentFieldConverter;
-
-            if (fieldConverter == null)
-            {
-                throw new NotSupportedException(
-                    string.Format("The field mapping of type {0} for field {1} must implement {2}.",
-                    fieldMapper.GetType(), fieldMapper.FieldName, typeof(IDocumentFieldConverter)));
-            }
-
-            return fieldConverter.GetFieldValue(document);
-        }
-
-        protected virtual void ValidateKey(Dictionary<IFieldMappingInfo, object> keyValues)
-        {
-            var nulls = keyValues.Where(kv => kv.Value == null).ToArray();
-
-            if (!nulls.Any()) return;
-
-            var message = string.Format("Cannot create key for document of type '{0}' with null value(s) for properties {1} which are marked as Key=true.",
-                                        typeof(T),
-                                        string.Join(", ", nulls.Select(n => n.Key.PropertyName)));
-
-            throw new InvalidOperationException(message);
         }
 
         public virtual void PrepareSearchSettings(IQueryExecutionContext context)
         {
-            if (EnableScoreTracking)
+            if (this.EnableScoreTracking)
             {
                 context.Searcher.SetDefaultFieldSortScoring(true, false);
             }
@@ -146,6 +122,22 @@ namespace Lucene.Net.Linq.Mapping
             // TODO: pattern should be analyzed/converted on per-field basis.
             var parser = new MultiFieldQueryParser(this.VersionProperty, this.FieldMapProperty.Keys.ToArray(), this.ExternalAnalyzerProperty);
             return parser.Parse(pattern);
+        }
+
+        public virtual bool Equals(T item1, T item2)
+        {
+            foreach (var field in this.FieldMapProperty.Values)
+            {
+                var val1 = field.GetPropertyValue(item1);
+                var val2 = field.GetPropertyValue(item2);
+
+                if (!this.ValuesEqual(val1, val2))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         public virtual bool IsModified(T item, Document document)
@@ -159,9 +151,9 @@ namespace Lucene.Net.Linq.Mapping
                 }
 
                 var val1 = field.GetPropertyValue(item);
-                var val2 = GetFieldValue(field, document);
+                var val2 = this.GetFieldValue(field, document);
 
-                if (!ValuesEqual(val1, val2))
+                if (!this.ValuesEqual(val1, val2))
                 {
                     return true;
                 }
@@ -170,20 +162,34 @@ namespace Lucene.Net.Linq.Mapping
             return false;
         }
 
-        public virtual bool Equals(T item1, T item2)
+        private object GetFieldValue(IFieldMappingInfo fieldMapper, Document document)
         {
-            foreach (var field in this.FieldMapProperty.Values)
-            {
-                var val1 = field.GetPropertyValue(item1);
-                var val2 = field.GetPropertyValue(item2);
+            var fieldConverter = fieldMapper as IDocumentFieldConverter;
 
-                if (!ValuesEqual(val1, val2))
-                {
-                    return false;
-                }
+            if (fieldConverter == null)
+            {
+                throw new NotSupportedException(
+                    string.Format("The field mapping of type {0} for field {1} must implement {2}.",
+                                  fieldMapper.GetType(), fieldMapper.FieldName, typeof(IDocumentFieldConverter)));
             }
 
-            return true;
+            return fieldConverter.GetFieldValue(document);
+        }
+
+        protected virtual void ValidateKey(Dictionary<IFieldMappingInfo, object> keyValues)
+        {
+            var nulls = keyValues.Where(kv => kv.Value == null).ToArray();
+
+            if (!nulls.Any())
+            {
+                return;
+            }
+
+            var message = string.Format("Cannot create key for document of type '{0}' with null value(s) for properties {1} which are marked as Key=true.",
+                                        typeof(T),
+                                        string.Join(", ", nulls.Select(n => n.Key.PropertyName)));
+
+            throw new InvalidOperationException(message);
         }
 
         protected internal virtual bool ValuesEqual(object val1, object val2)
@@ -201,15 +207,14 @@ namespace Lucene.Net.Linq.Mapping
             this.FieldMapProperty.Add(fieldMapper.PropertyName, fieldMapper);
             if (!string.IsNullOrWhiteSpace(fieldMapper.FieldName) && fieldMapper.Analyzer != null)
             {
-                Analyzer.AddAnalyzer(fieldMapper.FieldName, fieldMapper.Analyzer);
+                this.Analyzer.AddAnalyzer(fieldMapper.FieldName, fieldMapper.Analyzer);
             }
         }
 
         public void AddKeyField(IFieldMapper<T> fieldMapper)
         {
-            AddField(fieldMapper);
+            this.AddField(fieldMapper);
             this.KeyFieldsProperty.Add(fieldMapper);
         }
-
     }
 }
