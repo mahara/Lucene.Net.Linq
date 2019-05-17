@@ -37,6 +37,7 @@ GOTO RESTORE_PACKAGES
 
 
 :RESTORE_PACKAGES
+REM dotnet restore .\tools\Explicit.NuGet.Versions\Explicit.NuGet.Versions.csproj
 dotnet restore .\buildscripts\BuildScripts.csproj
 dotnet restore .\src\Lucene.Net.Linq\Lucene.Net.Linq.csproj
 dotnet restore .\src\Lucene.Net.Linq.Tests\Lucene.Net.Linq.Tests.csproj
@@ -45,6 +46,7 @@ GOTO BUILD
 
 
 :BUILD
+REM dotnet build .\tools\Explicit.NuGet.Versions\Explicit.NuGet.Versions.sln --no-restore
 dotnet build Lucene.Net.Linq.sln -c %CONFIGURATION% /p:APPVEYOR_BUILD_VERSION=%BUILD_VERSION% --no-restore
 
 GOTO TEST
@@ -57,6 +59,13 @@ ECHO Running Tests...
 ECHO ----------------
 
 dotnet test .\src\Lucene.Net.Linq.Tests --no-restore || exit /b 1
+
+REM GOTO NUGET_EXPLICIT_VERSIONS
+
+
+REM :NUGET_EXPLICIT_VERSIONS
+
+REM .\tools\Explicit.NuGet.Versions\build\nev.exe ".\build" "Lucene.Net.Linq"
 
 
 
